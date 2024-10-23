@@ -97,7 +97,7 @@ end
 
 %            vars
 % -------------------------- % 
-spin_time = .6;
+spin_time = .4;
 right_distance = 50;
 
 right_speed = 0;
@@ -120,7 +120,7 @@ while 1
                 % constalntly scan the distance and and if the distance is
                 % certain mark turn the robot that way
                 if distance > right_distance && distance ~= 255
-                    right_turn_logic(right_distance, distance, brick, left, right, spin_time);
+                    right_turn_logic(brick, left, right, spin_time);
                 end
                
                 % could have isolated block in the middle with no external
@@ -134,6 +134,7 @@ while 1
 
         case 's'
             brick.StopMotor('AB');
+            stopT(brick, left, right);
 
         case 'g'
             grandma_pik(brick);
@@ -157,8 +158,8 @@ while 1
   %          leftT(brick, left, right);
 %
         case 'q'
+            brick.StopAllMotors();
             break;
     end
 end
 
-brick.StopAllMotors();
