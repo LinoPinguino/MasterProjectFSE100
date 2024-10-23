@@ -4,31 +4,52 @@ right = 'B';
 left = 'A';
 
 brick.playTone(20, 800, 500);
+brick.StopAllMotors();
 
 
 function forwardT(brick)
+    disp("Forward");
     brick.MoveMotor('A', 50);
     brick.MoveMotor('B', 51);
 end
 
 function leftT(brick, left, right)
-    brick.MoveMotor(left, -25);
+    disp("left");
+    brick.MoveMotor(left, -50);
     brick.MoveMotor(right, 50);
 end
 
 function stopT(brick, left, right)
+    disp("stop");
     brick.MoveMotor(left, 0);
     brick.MoveMotor(right, 0);
 end
 
 
 function rightT(brick, left, right)
+    disp("right");
     brick.MoveMotor(left, 50);
     brick.MoveMotor(right, -50);
 end
 
 function backwardsT(brick) %#ok<*DEFNU>
+    disp("backwards");
     brick.MoveMotor('AB', -50);
+end
+
+function control_transfer(brick, key)
+    brick.playTone(20, 800, 500);
+    disp(key);
+    switch key
+        case 'uparrow'
+            forwardT(brick);
+        case 'downarrow'
+            backwardsT(brick);
+        case 'rightarrow'
+            rightT(brick, left, right);
+        case 'leftarrow'
+            leftT(brick, left, right);
+    end
 end
 
 
@@ -41,7 +62,7 @@ function touch_logic(brick, spin_time, left, right)
     brick.StopMotor('AB');
 
     disp('Backing Up');
-    backWardsT(brick);
+    backwardsT(brick);
     pause(.5);
     brick.StopMotor('AB');
 
@@ -52,27 +73,40 @@ function touch_logic(brick, spin_time, left, right)
 
 end
 
-function right_turn_logic(right_distance, distance, brick, left, right, spin_time)
-    if distance > right_distance
+function right_turn_logic(brick, left, right, spin_time)
         brick.StopMotor('AB');
         rightT(brick, left, right);
         pause(spin_time);
-    end
+        brick.StopMotor('AB');
+        forwardT(brick);
+        pause(1);
+end
+
+function grandma_pik(brick)
+    brick.MoveMotor('C', 30);
+    pause(.2);
+    brick.StopMotor('C');
+    
+end
+
+function grandma_drop(brick)
+    brick.MoveMotor('C', -20);
+    pause(.5);
+    brick.StopMotor('C');
 end
 
 %            vars
 % -------------------------- % 
 spin_time = .6;
-right_distance = 30;
+right_distance = 50;
 
 right_speed = 0;
 left_speed = 0;
 
-
-
 InitKeyboard();
 while 1
     pause(.25);
+    disp(key)
     switch key
         case 'w'
             disp('checking touch value');
@@ -81,12 +115,13 @@ while 1
                 disp('Going Forward');
                 forwardT(brick);
 
-
                 distance = brick.UltrasonicDist(4);
 
                 % constalntly scan the distance and and if the distance is
-                % certain mark turn the robot that way 
-                right_turn_logic(right_distance, distance, brick, left, right, spin_time);
+                % certain mark turn the robot that way
+                if distance > right_distance && distance ~= 255
+                    right_turn_logic(right_distance, distance, brick, left, right, spin_time);
+                end
                
                 % could have isolated block in the middle with no external
                 % walls connected
@@ -95,33 +130,35 @@ while 1
             elseif touched == 1
                 touch_logic(brick, spin_time, left, right);
 
-
             end
+
         case 's'
-            brick.StopMotor('AB');    
+            brick.StopMotor('AB');
+
+        case 'g'
+            grandma_pik(brick);
+
+        case 'd'
+            grandma_drop(brick);
+
+        case 'c'
+
+
+      %  case 'uparrow'
+       %     forwardT(brick);
+%
+ %       case 'downarrow'
+  %          backwardsT(brick);
+%
+ %       case 'rightarrow'
+  %          rightT(brick, left, right);
+%
+ %       case 'leftarrow'
+  %          leftT(brick, left, right);
+%
+        case 'q'
+            break;
     end
 end
 
-
-
-%                       notes 
-% ------------------------------------------------------ %
-
-% robot goes forward instantly
-% while constantly scanning the RIGHT side for distance
-% if the distance on the right side is greater than _
-%   turn right 
-% 
-% else go foward until a wall then turn left
-
-
-
-
-% for the going forward part of the code implemtent:
-%   a straigtening technique
-%   constantly checking for color ( lino )
-
-
-
-% there could be a part where the maze has isolated block
-% make a timing function which sets GRUB to spin around and do the maze reverse
+brick.StopAllMotors();
