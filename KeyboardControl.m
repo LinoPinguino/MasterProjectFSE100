@@ -112,13 +112,11 @@ while 1
             distance = brick.UltrasonicDist(4);
         end
         brick.stopMotor('AB');
-        
+       
+            brick.SetColorMode(3, 4);
+            color_rgb = brick.ColorRGB(3);
+            disp(color_rgb(1))
 
-
-
-            % brick.SetColorMode(3, 4);
-            % color_rgb = brick.ColorRGB(3);
-            % disp(color_rgb)
 
        
             % while 1

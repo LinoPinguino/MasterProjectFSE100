@@ -1,0 +1,35 @@
+[33mcommit 326703956ad54080d0300c927b98c1af0e1aab5e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Jacob Seipert <jseipert@asu.edu>
+Date:   Mon Oct 21 10:41:56 2024 -0700
+
+    Update drake_file.m
+
+[33mcommit 511abb15e6caded1ea204a2c554221a905136e6f[m
+Author: eiy <aaeon.anima@gmail.com>
+Date:   Mon Oct 21 09:42:22 2024 -0700
+
+    skeleton movement
+
+[33mcommit 2cbc6ff9a518b4adc9c4738a2ace5914a2e61f9a[m[33m ([m[1;32mdrake[m[33m)[m
+Author: eiy <aaeon.anima@gmail.com>
+Date:   Mon Oct 21 09:05:23 2024 -0700
+
+    added file
+
+[33mcommit 743afa5c3703575235383a4e1c0b96f75ae8d0a0[m
+Author: eiy <aaeon.anima@gmail.com>
+Date:   Sun Oct 20 10:34:00 2024 -0700
+
+    needs group discussion
+
+[33mcommit 016d7f9521120141da0be502eda438648632d5f7[m[33m ([m[1;31morigin/MovingAuto[m[33m, [m[1;31morigin/Grabber[m[33m, [m[1;31morigin/ColorDetect[m[33m)[m
+Author: Jacob Seipert <jseipert@asu.edu>
+Date:   Wed Oct 16 10:36:17 2024 -0700
+
+    Add files via upload
+
+[33mcommit bddc35c343f6c296ae6ae57a31f3aa61df8afa42[m
+Author: Lino Barraza Cordova <145868132+LinoPinguino@users.noreply.github.com>
+Date:   Wed Oct 2 10:15:27 2024 -0700
+
+    Initial commit
