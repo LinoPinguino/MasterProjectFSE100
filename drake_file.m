@@ -13,10 +13,11 @@ function forwardT(brick)
     brick.MoveMotor('B', 51);
 end
 
-function leftT(brick, left, right)
+function leftT(brick, left, right, lspeed, rspeed)
+    
     disp("left");
-    brick.MoveMotor(left, -50);
-    brick.MoveMotor(right, 50);
+    brick.MoveMotor(left, lspeed);
+    brick.MoveMotor(right, rspeed);
 end
 
 function stopT(brick, left, right)
@@ -26,10 +27,10 @@ function stopT(brick, left, right)
 end
 
 
-function rightT(brick, left, right)
+function rightT(brick, left, right, lspeed, rspeed)
     disp("right");
-    brick.MoveMotor(left, 50);
-    brick.MoveMotor(right, -50);
+    brick.MoveMotor(left, lspeed);
+    brick.MoveMotor(right, rspeed);
 end
 
 function backwardsT(brick) %#ok<*DEFNU>
@@ -37,24 +38,7 @@ function backwardsT(brick) %#ok<*DEFNU>
     brick.MoveMotor('AB', -50);
 end
 
-function control_transfer(brick, key)
-    brick.playTone(20, 800, 500);
-    disp(key);
-    switch key
-        case 'uparrow'
-            forwardT(brick);
-        case 'downarrow'
-            backwardsT(brick);
-        case 'rightarrow'
-            rightT(brick, left, right);
-        case 'leftarrow'
-            leftT(brick, left, right);
-    end
-end
-
-
-
-function touch_logic(brick, spin_time, left, right)
+function touch_logic(brick, spin_time, left, right, lspeed, rspeed)
     disp('Wall met');
     
     forwardT(brick);
@@ -67,15 +51,15 @@ function touch_logic(brick, spin_time, left, right)
     brick.StopMotor('AB');
 
     disp('Turning Left');
-    leftT(brick, left, right);
+    leftT(brick, left, right, lspeed, rspeed);
     pause(spin_time);
     brick.StopMotor('AB');
 
 end
 
-function right_turn_logic(brick, left, right, spin_time)
+function right_turn_logic(brick, left, right, spin_time, lspeed, rspeed)
         brick.StopMotor('AB');
-        rightT(brick, left, right);
+        rightT(brick, left, right, lspeed, -rspeed);
         pause(spin_time);
         brick.StopMotor('AB');
         forwardT(brick);
@@ -97,17 +81,21 @@ end
 
 %            vars
 % -------------------------- % 
-spin_time = .4;
+spin_time = .45;
 right_distance = 50;
+adjust_time = .1;
+correctional_distance = 15;
 
-right_speed = 0;
-left_speed = 0;
+right_speed = 50;
+left_speed = 50;
+
 
 InitKeyboard();
 while 1
     pause(.25);
     disp(key)
     switch key
+
         case 'w'
             disp('checking touch value');
             touched = brick.TouchPressed(2);
@@ -115,12 +103,28 @@ while 1
                 disp('Going Forward');
                 forwardT(brick);
 
+                % check color sensor
+
+                % all the logic for the different colors
+
                 distance = brick.UltrasonicDist(4);
 
                 % constalntly scan the distance and and if the distance is
                 % certain mark turn the robot that way
                 if distance > right_distance && distance ~= 255
-                    right_turn_logic(brick, left, right, spin_time);
+                    forwardT(brick);
+                    pause(1.5);
+                    right_turn_logic(brick, left, right, spin_time, left_speed, right_speed);
+                elseif distance < correctional_distance || distance == 255
+                    disp('against wall slight adjustment');
+                    leftT(brick, left, right, left_speed - 10, right_speed);
+                    pause(.5);
+                    brick.StopMotor('AB');
+                elseif distance > correctional_distance && distance < right_distance
+                    disp('far from wall slight adjustment');
+                    rightT(brick, left, right, left_speed, right_speed - 10);
+                    pause(.5);
+                    brick.StopMotor('AB');
                 end
                
                 % could have isolated block in the middle with no external
@@ -128,9 +132,9 @@ while 1
 
 
             elseif touched == 1
-                touch_logic(brick, spin_time, left, right);
-
+                touch_logic(brick, spin_time, left, right, -left_speed, right_speed);
             end
+
 
         case 's'
             brick.StopMotor('AB');
@@ -142,24 +146,20 @@ while 1
         case 'd'
             grandma_drop(brick);
 
-        case 'c'
+        case 'uparrow'
+            forwardT(brick);
 
+        case 'downarrow'
+            backwardsT(brick);
 
-      %  case 'uparrow'
-       %     forwardT(brick);
-%
- %       case 'downarrow'
-  %          backwardsT(brick);
-%
- %       case 'rightarrow'
-  %          rightT(brick, left, right);
-%
- %       case 'leftarrow'
-  %          leftT(brick, left, right);
-%
+        case 'rightarrow'
+            rightT(brick, left, right, left_speed, -right_speed);
+
+        case 'leftarrow'
+            leftT(brick, left, right, -left_speed, right_speed);
+
         case 'q'
             brick.StopAllMotors();
             break;
     end
 end
-
