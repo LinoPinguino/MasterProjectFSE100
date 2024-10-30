@@ -7,16 +7,14 @@ brick.playTone(20, 800, 500);
 brick.StopAllMotors();
 
 
-function forwardT(brick)
+function forwardT(brick, leftSpeed, rightSpeed)
     disp("Forward");
-    brick.MoveMotor('A', 50);
-    brick.MoveMotor('B', 51);
+    brick.MoveMotor('A', leftSpeed);
+    brick.MoveMotor('B', rightSpeed);
 end
 
-function leftT(brick, left, right, lspeed, rspeed)
-    
+function leftT(brick, right, rspeed)
     disp("left");
-    brick.MoveMotor(left, lspeed);
     brick.MoveMotor(right, rspeed);
 end
 
@@ -27,10 +25,9 @@ function stopT(brick, left, right)
 end
 
 
-function rightT(brick, left, right, lspeed, rspeed)
+function rightT(brick, left, lspeed)
     disp("right");
     brick.MoveMotor(left, lspeed);
-    brick.MoveMotor(right, rspeed);
 end
 
 function backwardsT(brick) %#ok<*DEFNU>
@@ -38,31 +35,32 @@ function backwardsT(brick) %#ok<*DEFNU>
     brick.MoveMotor('AB', -50);
 end
 
-function touch_logic(brick, spin_time, left, right, lspeed, rspeed)
+function touch_logic(brick, right, rspeed, flSpeed, fSpeed)
     disp('Wall met');
     
-    forwardT(brick);
-    pause(.5);
+    forwardT(brick, flSpeed, fSpeed);
+    pause(.43);
     brick.StopMotor('AB');
 
     disp('Backing Up');
     backwardsT(brick);
-    pause(.5);
+    pause(.85);
     brick.StopMotor('AB');
 
     disp('Turning Left');
-    leftT(brick, left, right, lspeed, rspeed);
-    pause(spin_time);
+    leftT(brick, right, rspeed);
+    pause(.947);
     brick.StopMotor('AB');
 
 end
 
-function right_turn_logic(brick, left, right, spin_time, lspeed, rspeed)
+function right_turn_logic(brick, left, lspeed, fSpeed, flSpeed)
         brick.StopMotor('AB');
-        rightT(brick, left, right, lspeed, -rspeed);
-        pause(spin_time);
+        pause(.4);
+        rightT(brick, left, lspeed);
+        pause(1);
         brick.StopMotor('AB');
-        forwardT(brick);
+        forwardT(brick, fSpeed, flSpeed);
         pause(1);
 end
 
@@ -81,12 +79,13 @@ end
 
 %            vars
 % -------------------------- % 
-spin_time = .45;
+spin_time = .23;
 right_distance = 50;
 adjust_time = .1;
-correctional_distance = 15;
+correctional_distance = 10;
+safety_distance = 15;
 
-right_speed = 50;
+right_speed = 57;
 left_speed = 50;
 
 
@@ -101,7 +100,7 @@ while 1
             touched = brick.TouchPressed(2);
             if touched == 0
                 disp('Going Forward');
-                forwardT(brick);
+                forwardT(brick, left_speed, right_speed);
 
                 % check color sensor
 
@@ -111,28 +110,41 @@ while 1
 
                 % constalntly scan the distance and and if the distance is
                 % certain mark turn the robot that way
-                if distance > right_distance && distance ~= 255
-                    forwardT(brick);
-                    pause(1.5);
-                    right_turn_logic(brick, left, right, spin_time, left_speed, right_speed);
-                elseif distance < correctional_distance || distance == 255
-                    disp('against wall slight adjustment');
-                    leftT(brick, left, right, left_speed - 10, right_speed);
-                    pause(.5);
-                    brick.StopMotor('AB');
-                elseif distance > correctional_distance && distance < right_distance
-                    disp('far from wall slight adjustment');
-                    rightT(brick, left, right, left_speed, right_speed - 10);
-                    pause(.5);
-                    brick.StopMotor('AB');
+                disp(distance);
+                if distance > right_distance
+                    disp(distance);
+                    disp("turning right becuase of distance");
+                    forwardT(brick, left_speed, right_speed);
+                    pause(.7);
+                    right_turn_logic(brick, left, 40, left_speed, right_speed);
                 end
+
+                % if distance < correctional_distance 
+                %     right_speed = right_speed + 1;
+                % end
+                % 
+                % if distance > safety_distance
+                %     right_speed = right_speed - 1;
+                % end
+
+                % if distance < correctional_distance || distance == 255
+                %     disp('against wall slight adjustment');
+                %     leftT(brick, right, 40);
+                %     pause(.947);
+                %     brick.StopMotor('AB');
+                % elseif distance > correctional_distance && distance < right_distance
+                %     disp('far from wall slight adjustment');
+                %     rightT(brick, left, 40);
+                %     pause(1);
+                %     brick.StopMotor('AB');
+                % end
                
                 % could have isolated block in the middle with no external
                 % walls connected
 
 
             elseif touched == 1
-                touch_logic(brick, spin_time, left, right, -left_speed, right_speed);
+                touch_logic(brick, right, 40, right_speed, left_speed);
             end
 
 
@@ -153,10 +165,16 @@ while 1
             backwardsT(brick);
 
         case 'rightarrow'
-            rightT(brick, left, right, left_speed, -right_speed);
+            rightT(brick, left, 40);
+            pause(1);
+            brick.StopMotor('AB')
+            pause(1)
 
         case 'leftarrow'
-            leftT(brick, left, right, -left_speed, right_speed);
+            leftT(brick, right, 40);
+            pause(.947);
+            brick.StopMotor('AB');
+            pause(1);
 
         case 'q'
             brick.StopAllMotors();
