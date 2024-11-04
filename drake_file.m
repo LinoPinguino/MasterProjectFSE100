@@ -35,10 +35,10 @@ function backwardsT(brick) %#ok<*DEFNU>
     brick.MoveMotor('AB', -50);
 end
 
-function touch_logic(brick, right, rspeed, flSpeed, fSpeed)
+function touch_logic(brick, right, rspeed, fSpeed, flSpeed)
     disp('Wall met');
     
-    forwardT(brick, flSpeed, fSpeed);
+    forwardT(brick, fSpeed, flSpeed);
     pause(.43);
     brick.StopMotor('AB');
 
@@ -144,7 +144,7 @@ while 1
 
 
             elseif touched == 1
-                touch_logic(brick, right, 40, right_speed, left_speed);
+                touch_logic(brick, right, 40, left_speed, right_speed);
             end
 
 
