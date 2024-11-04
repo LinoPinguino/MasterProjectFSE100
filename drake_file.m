@@ -7,6 +7,7 @@ brick.playTone(20, 800, 500);
 brick.StopAllMotors();
 
 
+
 function forwardT(brick, leftSpeed, rightSpeed)
     disp("Forward");
     brick.MoveMotor('A', leftSpeed);
@@ -58,7 +59,7 @@ function right_turn_logic(brick, left, lspeed, fSpeed, flSpeed)
         brick.StopMotor('AB');
         pause(.4);
         rightT(brick, left, lspeed);
-        pause(1);
+        pause(1.3);
         brick.StopMotor('AB');
         forwardT(brick, fSpeed, flSpeed);
         pause(1);
@@ -85,39 +86,74 @@ adjust_time = .1;
 correctional_distance = 10;
 safety_distance = 15;
 
-right_speed = 57;
-left_speed = 50;
+right_speed = 46;
+left_speed = 45;
+
+
+brick.SetColorMode(3,4)
 
 
 InitKeyboard();
 while 1
-    pause(.25);
+    pause(.15);
     disp(key)
     switch key
 
         case 'w'
+            color_rgb = brick.ColorRGB(3);
+            R = color_rgb(1);
+            G = color_rgb(2);
+            B = color_rgb(3);
+            color = determineColor(R, G, B);
+
+            disp(color);
+
+
             disp('checking touch value');
             touched = brick.TouchPressed(2);
             if touched == 0
-                disp('Going Forward');
-                forwardT(brick, left_speed, right_speed);
+                color = determineColor(R, G, B);
+                if strcmp(color, "unknown") == 1
 
-                % check color sensor
-
-                % all the logic for the different colors
-
-                distance = brick.UltrasonicDist(4);
-
-                % constalntly scan the distance and and if the distance is
-                % certain mark turn the robot that way
-                disp(distance);
-                if distance > right_distance
-                    disp(distance);
-                    disp("turning right becuase of distance");
+                    disp('Going Forward');
                     forwardT(brick, left_speed, right_speed);
-                    pause(.7);
-                    right_turn_logic(brick, left, 40, left_speed, right_speed);
+    
+                    % check color sensor
+    
+                    % all the logic for the different colors
+    
+                    distance = brick.UltrasonicDist(4);
+    
+                    % constalntly scan the distance and and if the distance is
+                    % certain mark turn the robot that way
+                    disp(distance);
+                    if distance > right_distance
+                        disp(distance);
+                        disp("turning right becuase of distance");
+                        forwardT(brick, left_speed, right_speed);
+                        color;
+                        if strcmp(color, "Red") == 1
+                            brick.StopMotor('AB');
+                            pause(1)
+                            forwardT(brick, left_speed, right_speed);
+                            pause(.1);
+                        end
+                        pause(1.3);
+                        right_turn_logic(brick, left, 40, left_speed, right_speed);
+                    end
+
+                elseif strcmp(color, "Red")
+                    stopT(brick, left, right);
+                    pause(1);
+                    forwardT(brick, left_speed, right_speed);
+                    pause(.2);
+                    forwardT(brick, left_speed, right_speed);
+
+                elseif strcmp(color, "Blue")
+                    stopT(brick, left, right);
+                    disp('transfer control')
                 end
+
 
                 % could have isolated block in the middle with no external
                 % walls connected
@@ -180,9 +216,9 @@ stopSignLocation = "Red";
 brick.SetColorMode(3,4)
 color_rgb = brick.ColorRGB(3);
 
-R = color_rgb(1)
-G = color_rgb(2)
-B = color_rgb(3)
+R = color_rgb(1);
+G = color_rgb(2);
+B = color_rgb(3);
 
 hasGranny = false;
 %We keep as boolean
@@ -192,83 +228,14 @@ function color = determineColor(R, G, B)
     threshold = 100;
 
     if R >= threshold && G < threshold && B < threshold
-        color = 'Red';  
+        color = "Red";  
     elseif G >= threshold && R < threshold && B < threshold
-        color = 'Green';
+        color = "Green";
     elseif B >= threshold && R < threshold && G < threshold
-        color = 'Blue';
+        color = "Blue";
     elseif R >= threshold && G >= threshold && B < threshold
-        color = 'Yellow';
+        color = "Yellow";
     else
-        color = 'unknown';
+        color = "unknown";
     end
 end
-
-
-
-function moveRobot(color)
-    switch color
-        case startLocation
-            %perform certain actions, probably nothing/ignore color;
-            %Continue movement or use it to initiate pathfinding code
-            disp("Starting Point")
-            navigateToPickUp();
-
-        case pickUpLocation
-            %give full control back to computer/break while code, we will need
-            %to do something after we pick up the granny to prevent this from
-            %shutting the robot down again and again once the robot in on the
-            %maze again with granny on
-            disp("Pick Up Point")
-
-            if ~hasGranny
-                %for pre granny pickup
-                hasGranny = true;
-                giveControl();  
-                navigateToDropOff();
-            else 
-                disp("Granny already picked Up")
-                %Return to pathfinding
-
-            end
-    
-        case dropOffLocation
-            %Give full control back to computer ONLY after having Granny ON
-            disp("Drop Off Point")
-
-            if hasGranny
-                giveControl();
-            else 
-                disp("Granny not picked up")
-                %Return to pathfinding
-
-            return;
-            
-        case stopSignLocation
-            %Pase movement for some seconds, continue going, prevent this code
-            %from triggering consecutivley to prevent the robot from staying at
-            %the stop sign forever.
-            pauseMovement()
-            moveForward()
-            %return to pathfinding
-
-        case 'unknown'
-            disp("Unknown Color")
-
-
-
-
-while color == 'unknown'
-    pause(.5);
-    color_rgb = brick.ColorRGB(3);
-    R = color_rgb(1);
-    G = color_rgb(2);
-    B = color_rgb(3);
-    color = determineColor(R, G, B);
-    navigate();
-end
-
-
-
- 
-        
