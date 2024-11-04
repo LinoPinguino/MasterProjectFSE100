@@ -119,26 +119,6 @@ while 1
                     right_turn_logic(brick, left, 40, left_speed, right_speed);
                 end
 
-                % if distance < correctional_distance 
-                %     right_speed = right_speed + 1;
-                % end
-                % 
-                % if distance > safety_distance
-                %     right_speed = right_speed - 1;
-                % end
-
-                % if distance < correctional_distance || distance == 255
-                %     disp('against wall slight adjustment');
-                %     leftT(brick, right, 40);
-                %     pause(.947);
-                %     brick.StopMotor('AB');
-                % elseif distance > correctional_distance && distance < right_distance
-                %     disp('far from wall slight adjustment');
-                %     rightT(brick, left, 40);
-                %     pause(1);
-                %     brick.StopMotor('AB');
-                % end
-               
                 % could have isolated block in the middle with no external
                 % walls connected
 
