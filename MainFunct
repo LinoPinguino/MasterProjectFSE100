@@ -1,0 +1,23 @@
+global startLocation, pickUpLocation, dropOffLocation, stopSignLocation, hasGranny, taskComplete
+
+startLocation = 'Blue';
+pickUpLocation = 'Yellow';
+dropOffLocation = 'Green';
+stopSignLocation = 'Red';
+
+
+hasGranny = false;
+taskComplete = false;
+
+brick.SetColorMode(3,4)
+
+function main()
+    while hasGranny == false && taskComplete == false
+        pause(.5);
+        color_rgb = brick.ColorRGB(3);
+        R = color_rgb(1);
+        G = color_rgb(2);
+        B = color_rgb(3);
+        color = determineColor(R, G, B);
+
+        if color 
