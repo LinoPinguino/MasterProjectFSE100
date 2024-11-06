@@ -86,9 +86,18 @@ adjust_time = .1;
 correctional_distance = 10;
 safety_distance = 15;
 
-right_speed = 46;
+right_speed = 44;
 left_speed = 45;
 
+has_granny = false;
+
+
+startLocation = "Yellow";
+pickUpLocation = "Blue";
+dropOffLocation = "Green";
+stopSignLocation = "Red";
+
+target_location = pickUpLocation;
 
 brick.SetColorMode(3,4)
 
@@ -153,24 +162,37 @@ while 1
                     forwardT(brick, left_speed, right_speed);
 
                 elseif strcmp(color, "Blue")
-                    % stop beep two times
-                    stopT(brick, left, right);
-                    brick.playTone(20, 800, 500);
-                    pause(1);
-                    brick.playTone(20, 800, 500);
-                    disp('transfer control');
+                    if ~has_granny 
+                        has_granny = true;         
+                    end
+
+                    if target_location == pickUpLocation
+                        % stop beep two times
+                        stopT(brick, left, right);
+                        brick.playTone(20, 800, 500);
+                        pause(1);
+                        brick.playTone(20, 800, 500);
+                        disp('transfer control');
+                        forwardT(brick, left_speed, right_speed);
+                        pause(.6);
+                        target_location = dropOffLocation;
+                    end
                 
                 elseif strcmp(color, "Green")
-                    % stop and beep three times
-                    stopT(brick, left, right)
-                    brick.playTone(20, 800, 500);
-                    pause(1);
-                    brick.playTone(20, 800, 500);
-                    pause(1);
-                    brick.playTone(20, 800, 500);
-                    pause(1);
-                    disp('whatever yellow does');
-
+                    if target_location == dropOffLocation
+                        disp('reading greed')
+                        % stop and beep three times
+                        stopT(brick, left, right)
+                        brick.playTone(20, 800, 500);
+                        pause(1);
+                        brick.playTone(20, 800, 500);
+                        pause(1);
+                        brick.playTone(20, 800, 500);
+                        pause(1);
+                        disp('whatever yellow does');
+                        forwardT(brick, left_speed, right_speed);
+                        pause(.6);
+                    end
 
                 end
 
@@ -226,12 +248,11 @@ end
 
 %Seperator
 
-global startLocation pickUpLocation dropOffLocation stopSignLocation
-
 startLocation = "SampleColor";
 pickUpLocation = "SampleColor";
 dropOffLocation = "SampleColor";
 stopSignLocation = "Red";
+
 
 brick.SetColorMode(3,4)
 color_rgb = brick.ColorRGB(3);
@@ -244,8 +265,17 @@ hasGranny = false;
 %We keep as boolean
 
 
-function color = determineColor(R, G, B)    
-    threshold = 100;
+function color = determineColor(R, G, B)   
+    brightness = (R + G + B) / 3;
+    base_threshold = 100;
+    disp(brick.ColorRGB(3))
+
+    
+    if brightness < 150
+        threshold = 95;
+    else
+        threshold = base_threshold;
+    end
 
     if R >= threshold && G < threshold && B < threshold
         color = "Red";  
