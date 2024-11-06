@@ -59,10 +59,10 @@ function right_turn_logic(brick, left, lspeed, fSpeed, flSpeed)
         brick.StopMotor('AB');
         pause(.4);
         rightT(brick, left, lspeed);
-        pause(1.3);
+        pause(1.22);
         brick.StopMotor('AB');
         forwardT(brick, fSpeed, flSpeed);
-        pause(1);
+        pause(.8);
 end
 
 function grandma_pik(brick)
@@ -117,7 +117,6 @@ while 1
 
             disp(color);
 
-
             disp('checking touch value');
             touched = brick.TouchPressed(2);
             if touched == 0
@@ -149,7 +148,7 @@ while 1
                             pause(.1);
 
                         end
-                        pause(1.3);
+                        pause(1.1);
                         right_turn_logic(brick, left, 40, left_speed, right_speed);
                     end
 
@@ -179,7 +178,7 @@ while 1
                     end
                 
                 elseif strcmp(color, "Green")
-                    if target_location == dropOffLocation
+                    % if target_location == dropOffLocation
                         disp('reading greed')
                         % stop and beep three times
                         stopT(brick, left, right)
@@ -192,7 +191,7 @@ while 1
                         disp('whatever yellow does');
                         forwardT(brick, left_speed, right_speed);
                         pause(.6);
-                    end
+                    % end
 
                 end
 
@@ -240,20 +239,6 @@ while 1
     end
 end
 
-
-
-
-
-
-
-%Seperator
-
-startLocation = "SampleColor";
-pickUpLocation = "SampleColor";
-dropOffLocation = "SampleColor";
-stopSignLocation = "Red";
-
-
 brick.SetColorMode(3,4)
 color_rgb = brick.ColorRGB(3);
 
@@ -266,16 +251,17 @@ hasGranny = false;
 
 
 function color = determineColor(R, G, B)   
-    brightness = (R + G + B) / 3;
-    base_threshold = 100;
-    disp(brick.ColorRGB(3))
-
-    
-    if brightness < 150
-        threshold = 95;
-    else
-        threshold = base_threshold;
-    end
+    % brightness = (R + G + B) / 3;
+    % base_threshold = 100;
+    % disp(brick.ColorRGB(3))
+    % 
+    % 
+    % if brightness < 150
+    %     threshold = 95;
+    % else
+    %     threshold = base_threshold;
+    % end
+    threshold = 90;
 
     if R >= threshold && G < threshold && B < threshold
         color = "Red";  
