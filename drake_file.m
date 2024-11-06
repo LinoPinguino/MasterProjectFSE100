@@ -134,15 +134,18 @@ while 1
                         color;
                         if strcmp(color, "Red") == 1
                             brick.StopMotor('AB');
-                            pause(1)
+                            pause(1);
+                            brick.playTone(20, 800, 500);
                             forwardT(brick, left_speed, right_speed);
                             pause(.1);
+
                         end
                         pause(1.3);
                         right_turn_logic(brick, left, 40, left_speed, right_speed);
                     end
 
                 elseif strcmp(color, "Red")
+                    % stop for one second
                     stopT(brick, left, right);
                     pause(1);
                     forwardT(brick, left_speed, right_speed);
@@ -150,8 +153,25 @@ while 1
                     forwardT(brick, left_speed, right_speed);
 
                 elseif strcmp(color, "Blue")
+                    % stop beep two times
                     stopT(brick, left, right);
-                    disp('transfer control')
+                    brick.playTone(20, 800, 500);
+                    pause(1);
+                    brick.playTone(20, 800, 500);
+                    disp('transfer control');
+                
+                elseif strcmp(color, "Green")
+                    % stop and beep three times
+                    stopT(brick, left, right)
+                    brick.playTone(20, 800, 500);
+                    pause(1);
+                    brick.playTone(20, 800, 500);
+                    pause(1);
+                    brick.playTone(20, 800, 500);
+                    pause(1);
+                    disp('whatever yellow does');
+
+
                 end
 
 
