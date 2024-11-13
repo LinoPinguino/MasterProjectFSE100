@@ -1,0 +1,67 @@
+% whole_block_distance = 62;
+% robot_whole_block_distance = 42;
+% perfered_distance = 25;
+% too_close_distance = 15;
+% Ideal_range = 15-27;
+
+
+right = 'B';
+left = 'A';
+
+right_speed = 44;
+left_speed = 45;
+
+
+function forwardT(brick, leftSpeed, rightSpeed)
+    disp("Forward");
+    brick.MoveMotor('A', leftSpeed);
+    brick.MoveMotor('B', rightSpeed);
+end
+
+function leftT(brick, right, rspeed)
+    disp("left");
+    brick.MoveMotor(right, rspeed);
+end
+
+function rightT(brick, left, lspeed)
+    disp("right");
+    brick.MoveMotor(left, lspeed);
+end
+
+
+
+
+
+close_distance = 15;       % Threshold for when the robot is too close to the wall
+far_distance = 25;         % Threshold for when the robot is too far from the wall
+    
+% Speed parameters for slight adjustments
+adjust_speed = 40;         % Speed for slight correctional adjustments
+adjust_time = 0.5;         % Duration for the slight turn adjustment
+    
+% Main loop for movement control
+while 1
+    pause(.15);
+    distance = brick.UltrasonicDist(4);  
+    if distance <= close_distance
+    % Too close to the wall, turn left slightly
+
+        disp("Too close, slight left");
+        leftT(brick, right_motor, adjust_speed);  
+        pause(adjust_time);
+        brick.StopMotor('AB');  % Stop after adjustment
+    
+    elseif distance > far_distance
+        % Too far from the wall, turn right slightly
+        disp("Too far, slight right");
+        rightT(brick, left_motor, adjust_speed); 
+        pause(adjust_time);
+        brick.StopMotor('AB');  % Stop after adjustment
+    
+    else
+        % Within ideal range, move forward
+        disp("Maintaining forward path");
+        forwardT(brick, left_speed, right_speed);
+    end
+end
+    
