@@ -15,7 +15,6 @@ taskComplete = false;
 brick.SetColorMode(3, 4);
 
 % Main function to control robot behavior
-function main()
     while ~taskComplete
         pause(0.15); % Prevents excessive looping
 
@@ -33,14 +32,16 @@ function main()
         if strcmp(color, startLocation)
             disp("At Start Location");
             backwardsT(brick, left, right);
-            forwardT(brick,left,right);
+            forwardT(brick, left_speed, right_speed);
 
         elseif strcmp(color, pickUpLocation)
             disp("At Pick-Up Location");
             if ~hasGranny
                 disp("Granny picked up.");
-                rightT(brick, left, right); 
-                forwardT(brick, hasGranny = trueleft,right);
+                giveControl();
+                hasGranny = true;
+                continue;
+
             else
                 disp("Granny already picked up.");
             end
@@ -57,10 +58,10 @@ function main()
         elseif strcmp(color, stopSignLocation)
             disp("At Stop Sign Location");
             stopT(brick, left, right);
-            forwardT(brick,left,right);
+            forwardT(brick, left_speed, right_speed);
 
         else
-            forwardT(brick,left,right);
+            forwardT(brick, left_speed ,right_speed);
         end
 
         % Enter if statement for movement
@@ -68,7 +69,7 @@ function main()
         touched = brick.TouchPressed(2);
         if touched == 0
             disp('Going Forward');
-            forwardT(brick);
+            forwardT(brick, left_speed, right_speed);
 
             % check color sensor
 
@@ -79,17 +80,17 @@ function main()
             % constalntly scan the distance and and if the distance is
             % certain mark turn the robot that way
             if distance > right_distance && distance ~= 255
-                forwardT(brick);
+                forwardT(brick, left_speed, right_speed);
                 pause(1.5);
-                right_turn_logic(brick, left, right, spin_time, left_speed, right_speed);
+                right_turn_logic(brick, left, left_speed, right_speed, right_speed);
             elseif distance < correctional_distance || distance == 255
                 disp('against wall slight adjustment');
-                leftT(brick, left, right, left_speed - 10, right_speed);
+                leftT(brick, right, right_speed);
                 pause(.5);
                 brick.StopMotor('AB');
             elseif distance > correctional_distance && distance < right_distance
                 disp('far from wall slight adjustment');
-                rightT(brick, left, right, left_speed, right_speed - 10);
+                rightT(brick, left, left_speed);
                 pause(.5);
                 brick.StopMotor('AB');
             end
@@ -97,14 +98,14 @@ function main()
             % could have isolated block in the middle with no external
             % walls connected
         else
-        touch_logic(brick, spin_time, left, right, -left_speed, right_speed);
+        touch_logic(brick, right, 40, left_speed, right_speed);
 
 
-
+        end
 
     end
     disp("Task Complete!");
-end
+
 
 %--------------Functions----------------%
 
@@ -208,6 +209,11 @@ function grandma_drop(brick)
     brick.StopMotor('C');
 end
 
+function giveControl()
+    disp('gave control');
+end
+
+
 %------------Function for giving control ------------%
 
 % Repurpose Drakes old code here
@@ -230,7 +236,3 @@ left_speed = 45;
 
 
 target_location = pickUpLocation;
-
-
-main(); % Call the main function to start robot behavior
-
