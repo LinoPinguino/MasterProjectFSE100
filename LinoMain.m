@@ -26,16 +26,20 @@ brick.SetColorMode(3, 4);
 
         % Determine color by running determineColor function
         color = determineColor(R, G, B);
+        disp(color);
 
         % First do actions based on detected color
         % strcmp compares two strings and returns true if they are the same
         if strcmp(color, startLocation)
             disp("At Start Location");
-            backwardsT(brick, left, right);
+            stopT(brick, left, right);
+            pause(3);
             forwardT(brick, left_speed, right_speed);
 
         elseif strcmp(color, pickUpLocation)
             disp("At Pick-Up Location");
+            stopT(brick, left, right);
+            pause(3);
             if ~hasGranny
                 disp("Granny picked up.");
                 giveControl();
@@ -48,6 +52,8 @@ brick.SetColorMode(3, 4);
 
         elseif strcmp(color, dropOffLocation)
             disp("At Drop-Off Location");
+            stopT(brick, left, right);
+            pause(3);
             if hasGranny 
             
                 taskComplete = true;
@@ -58,10 +64,8 @@ brick.SetColorMode(3, 4);
         elseif strcmp(color, stopSignLocation)
             disp("At Stop Sign Location");
             stopT(brick, left, right);
+            pause(1);
             forwardT(brick, left_speed, right_speed);
-
-        else
-            forwardT(brick, left_speed ,right_speed);
         end
 
         % Enter if statement for movement
@@ -80,27 +84,23 @@ brick.SetColorMode(3, 4);
             % constalntly scan the distance and and if the distance is
             % certain mark turn the robot that way
             if distance > right_distance && distance ~= 255
+                disp('righting runt');
                 forwardT(brick, left_speed, right_speed);
-                pause(1.5);
+                pause(.5);
                 right_turn_logic(brick, left, left_speed, right_speed, right_speed);
             elseif distance < correctional_distance || distance == 255
-                disp('against wall slight adjustment');
-                leftT(brick, right, right_speed);
-                pause(.5);
-                brick.StopMotor('AB');
-            elseif distance > correctional_distance && distance < right_distance
-                disp('far from wall slight adjustment');
-                rightT(brick, left, left_speed);
-                pause(.5);
-                brick.StopMotor('AB');
+                right_speed = 50;
+                disp("increasing speed");
+            elseif distance > correctional_distance && distance < safety_distance
+                right_speed = 40;
+                disp("correcting speed");
             end
                
             % could have isolated block in the middle with no external
             % walls connected
         else
-        touch_logic(brick, right, 40, left_speed, right_speed);
-
-
+            disp("Touched");
+            touch_logic(brick, right, 40, left_speed, right_speed);
         end
 
     end
@@ -190,10 +190,10 @@ function right_turn_logic(brick, left, lspeed, fSpeed, flSpeed)
         brick.StopMotor('AB');
         pause(.4);
         rightT(brick, left, lspeed);
-        pause(1.22);
+        pause(.9);
         brick.StopMotor('AB');
         forwardT(brick, fSpeed, flSpeed);
-        pause(.8);
+        pause(1);
 end
 
 function grandma_pik(brick)
@@ -229,7 +229,7 @@ spin_time = .23;
 right_distance = 50;
 adjust_time = .1;
 correctional_distance = 10;
-safety_distance = 15;
+safety_distance = 30;
 
 right_speed = 44;
 left_speed = 45;
