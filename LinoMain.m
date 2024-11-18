@@ -1,4 +1,5 @@
 % Global variables for locations and states
+global keys;
 %global startLocation, pickUpLocation, dropOffLocation, stopSignLocation, hasGranny, taskComplete
 
 % Define location colors
@@ -10,6 +11,7 @@ stopSignLocation = 'Red';
 % Initialize state variables
 hasGranny = false;
 taskComplete = false;
+InitKeyboard();
 
 % Set color sensor mode (assuming 'brick' is the object controlling the robot)
 brick.SetColorMode(3, 4);
@@ -69,6 +71,18 @@ brick.SetColorMode(3, 4);
         end
 
         % Enter if statement for movement
+        if strcmp(color, pickUpLocation)
+            switch key
+                case 'w'
+                    brick.MoveMotor('AB', 20);
+                case 'd'
+                    brick.MoveMotor(left, 30);
+                case 'a'
+                    brick.MoveMotor(right, 30);
+                case 's'
+                    brick.MoveMotor('AB, -20);
+            end
+        end
 
         touched = brick.TouchPressed(2);
         if touched == 0
@@ -212,15 +226,6 @@ end
 function giveControl()
     disp('gave control');
 end
-
-
-%------------Function for giving control ------------%
-
-% Repurpose Drakes old code here
-
-
-
-
 
 
 %            vars
