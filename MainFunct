@@ -44,7 +44,7 @@ brick.SetColorMode(3, 4);
             pause(3);
             if ~hasGranny
                 disp("Granny picked up.");
-                giveControl();
+                giveControl(brick, left, right);
                 hasGranny = true;
                 continue;
 
@@ -57,8 +57,9 @@ brick.SetColorMode(3, 4);
             stopT(brick, left, right);
             pause(3);
             if hasGranny 
-            
+                giveControl(brick, left, right);
                 taskComplete = true;
+                continue;
             else
                 disp("Granny not yet picked up.");
             end
@@ -68,20 +69,6 @@ brick.SetColorMode(3, 4);
             stopT(brick, left, right);
             pause(1);
             forwardT(brick, left_speed, right_speed);
-        end
-
-        % Enter if statement for movement
-        if strcmp(color, pickUpLocation)
-            switch key
-                case 'w'
-                    brick.MoveMotor('AB', 20);
-                case 'd'
-                    brick.MoveMotor(left, 30);
-                case 'a'
-                    brick.MoveMotor(right, 30);
-                case 's'
-                    brick.MoveMotor('AB, -20);
-            end
         end
 
         touched = brick.TouchPressed(2);
@@ -102,6 +89,8 @@ brick.SetColorMode(3, 4);
                 forwardT(brick, left_speed, right_speed);
                 pause(.5);
                 right_turn_logic(brick, left, left_speed, right_speed, right_speed);
+                continue;
+
             elseif distance < correctional_distance || distance == 255
                 right_speed = 50;
                 disp("increasing speed");
@@ -280,6 +269,48 @@ function alignUsingUltrasonic(brick, left, right, leftSpeed, rightSpeed)
         brick.MoveMotor(right, rightSpeed);
     end
 end
+
+
+
+
+% -------------- Control Functions -------------- %
+
+
+function giveControl(brick, left, right)
+    disp('Press "q" to exit');
+   
+    InitKeyboard(); 
+    
+    while true
+        pause(0.15); % Prevents excessive looping
+        switch key
+            case 'w'
+                disp('Moving forward');
+                brick.MoveMotor('AB', 20); 
+            case 's'
+                disp('Moving backward');
+                brick.MoveMotor('AB', -20); 
+            case 'a'
+                disp('Turning left');
+                brick.MoveMotor(right, 30); 
+            case 'd'
+                disp('Turning right');
+                brick.MoveMotor(left, 30); 
+            case 'q'
+                disp('Exiting control mode.');
+                brick.StopMotor('AB'); 
+                break; 
+            otherwise
+                brick.StopMotor('AB'); 
+        end
+    end
+    
+end
+
+
+
+
+
 
 
 
