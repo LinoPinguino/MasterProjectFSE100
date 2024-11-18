@@ -25,6 +25,9 @@ safety_distance = 30;
 right_speed = 44;
 left_speed = 45;
 
+right = 'B';
+left = 'A';
+
 cycle = 0;
 
 
@@ -39,7 +42,7 @@ brick.SetColorMode(3, 4);
         pause(0.15); % Prevents excessive looping
 
         if mod(cycle, 2) == 0
-            right_speed = 46;
+            right_speed = 47;
         else
             right_speed = 44;
         end
@@ -78,6 +81,10 @@ brick.SetColorMode(3, 4);
                             brick.MoveMotor('AB', -20);
                         case 'a'
                             brick.MoveMotor(right, 30);
+                        case 'uparrow'
+                            brick.MoveMotor('C', 20);
+                        case 'downarrow'
+                            brick.MoveMotor('C', -20);
                         case 'q'
                             break;
                         case 0
@@ -176,9 +183,6 @@ end
 % Drake code
 % Functions for movement
 
-right = 'B';
-left = 'A';
-
 brick.playTone(20, 800, 500);
 brick.StopAllMotors();
 
@@ -234,7 +238,7 @@ function right_turn_logic(brick, left, lspeed, fSpeed, flSpeed)
         brick.StopMotor('AB');
         pause(.4);
         rightT(brick, left, lspeed);
-        pause(.9);
+        pause(1);
         brick.StopMotor('AB');
         forwardT(brick, fSpeed, flSpeed);
         pause(1);
