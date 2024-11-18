@@ -1,156 +1,10 @@
-% Global variables for locations and states
-global keys;
-%global startLocation, pickUpLocation, dropOffLocation, stopSignLocation, hasGranny, taskComplete
-
-% Define location colors
-startLocation = 'Blue';
-pickUpLocation = 'Yellow';
-dropOffLocation = 'Green';
-stopSignLocation = 'Red';
-
-% Initialize state variables
-hasGranny = false;
-taskComplete = false;
-InitKeyboard();
-
-% Set color sensor mode (assuming 'brick' is the object controlling the robot)
-brick.SetColorMode(3, 4);
-
-% Main function to control robot behavior
-    while ~taskComplete
-        pause(0.15); % Prevents excessive looping
-
-        % Read color sensor values and assign to RGB variables
-        color_rgb = brick.ColorRGB(3);
-        R = color_rgb(1);
-        G = color_rgb(2);
-        B = color_rgb(3);
-
-        % Determine color by running determineColor function
-        color = determineColor(R, G, B);
-        disp(color);
-
-        % First do actions based on detected color
-        % strcmp compares two strings and returns true if they are the same
-        if strcmp(color, startLocation)
-            disp("At Start Location");
-            stopT(brick, left, right);
-            pause(3);
-            forwardT(brick, left_speed, right_speed);
-
-        elseif strcmp(color, pickUpLocation)
-            disp("At Pick-Up Location");
-            stopT(brick, left, right);
-            pause(3);
-            if ~hasGranny
-                disp("Granny picked up.");
-                giveControl();
-                hasGranny = true;
-                continue;
-
-            else
-                disp("Granny already picked up.");
-            end
-
-        elseif strcmp(color, dropOffLocation)
-            disp("At Drop-Off Location");
-            stopT(brick, left, right);
-            pause(3);
-            if hasGranny 
-            
-                taskComplete = true;
-            else
-                disp("Granny not yet picked up.");
-            end
-
-        elseif strcmp(color, stopSignLocation)
-            disp("At Stop Sign Location");
-            stopT(brick, left, right);
-            pause(1);
-            forwardT(brick, left_speed, right_speed);
-        end
-
-        % Enter if statement for movement
-        if strcmp(color, pickUpLocation)
-            switch key
-                case 'w'
-                    brick.MoveMotor('AB', 20);
-                case 'd'
-                    brick.MoveMotor(left, 30);
-                case 'a'
-                    brick.MoveMotor(right, 30);
-                case 's'
-                    brick.MoveMotor('AB, -20);
-            end
-        end
-
-        touched = brick.TouchPressed(2);
-        if touched == 0
-            disp('Going Forward');
-            forwardT(brick, left_speed, right_speed);
-
-            % check color sensor
-
-            % all the logic for the different colors
-
-            distance = brick.UltrasonicDist(4);
-
-            % constalntly scan the distance and and if the distance is
-            % certain mark turn the robot that way
-            if distance > right_distance && distance ~= 255
-                disp('righting runt');
-                forwardT(brick, left_speed, right_speed);
-                pause(.5);
-                right_turn_logic(brick, left, left_speed, right_speed, right_speed);
-            elseif distance < correctional_distance || distance == 255
-                right_speed = 50;
-                disp("increasing speed");
-            elseif distance > correctional_distance && distance < safety_distance
-                right_speed = 40;
-                disp("correcting speed");
-            end
-               
-            % could have isolated block in the middle with no external
-            % walls connected
-        else
-            disp("Touched");
-            touch_logic(brick, right, 40, left_speed, right_speed);
-        end
-
-    end
-    disp("Task Complete!");
-
-
-%--------------Functions----------------%
-
-% Function to determine color based on RGB values
-function color = determineColor(R, G, B)   
-    % Threshold value for color detection, was originally 100, set to 95 because offical green wasn't being detected 
-    % Possibly modify this value to improve color detection
-    threshold = 95;      
-
-    if R >= threshold && G < threshold && B < threshold
-        color = 'Red';  
-    elseif G >= threshold && R < threshold && B < threshold
-        color = 'Green';
-    elseif B >= threshold && R < threshold && G < threshold
-        color = 'Blue';
-    elseif R >= threshold && G >= threshold && B < threshold
-        color = 'Yellow';
-    else
-        color = 'unknown';
-    end
-end
-
-
-% Drake code
-% Functions for movement
+global key
 
 right = 'B';
 left = 'A';
 
-brick.playTone(20, 800, 500);
 brick.StopAllMotors();
+
 
 
 function forwardT(brick, leftSpeed, rightSpeed)
@@ -204,10 +58,10 @@ function right_turn_logic(brick, left, lspeed, fSpeed, flSpeed)
         brick.StopMotor('AB');
         pause(.4);
         rightT(brick, left, lspeed);
-        pause(.9);
+        pause(1.22);
         brick.StopMotor('AB');
         forwardT(brick, fSpeed, flSpeed);
-        pause(1);
+        pause(.8);
 end
 
 function grandma_pik(brick)
@@ -223,21 +77,231 @@ function grandma_drop(brick)
     brick.StopMotor('C');
 end
 
-function giveControl()
-    disp('gave control');
-end
-
-
 %            vars
 % -------------------------- % 
 spin_time = .23;
 right_distance = 50;
 adjust_time = .1;
 correctional_distance = 10;
-safety_distance = 30;
+safety_distance = 15;
 
 right_speed = 44;
 left_speed = 45;
 
+has_granny = false;
+
+
+startLocation = "Yellow";
+pickUpLocation = "Blue";
+dropOffLocation = "Green";
+stopSignLocation = "Red";
 
 target_location = pickUpLocation;
+
+brick.SetColorMode(3,4)
+
+
+InitKeyboard();
+while 1
+    pause(.15);
+    disp(key)
+    switch key
+
+        case 'w'
+            color_rgb = brick.ColorRGB(3);
+            R = color_rgb(1);
+            G = color_rgb(2);
+            B = color_rgb(3);
+            color = determineColor(R, G, B);
+
+            disp(color);
+
+            disp('checking touch value');
+            touched = brick.TouchPressed(2);
+            if touched == 0
+                color = determineColor(R, G, B);
+                if strcmp(color, "unknown") == 1
+
+                    disp('Going Forward');
+                    forwardT(brick, left_speed, right_speed);
+    
+                    % check color sensor
+    
+                    % all the logic for the different colors
+    
+                    distance = brick.UltrasonicDist(4);
+    
+                    % constalntly scan the distance and and if the distance is
+                    % certain mark turn the robot that way
+                    disp(distance);
+                    if distance > right_distance
+                        disp(distance);
+                        disp("turning right becuase of distance");
+                        forwardT(brick, left_speed, right_speed);
+                        color;
+                        if strcmp(color, "Red") == 1
+                            brick.StopMotor('AB');
+                            pause(1);
+                            brick.playTone(20, 800, 500);
+                            forwardT(brick, left_speed, right_speed);
+                            pause(.1);
+
+                        end
+                        pause(1.1);
+                        right_turn_logic(brick, left, 40, left_speed, right_speed);
+                    end
+
+                elseif strcmp(color, "Red")
+                    % stop for one second
+                    stopT(brick, left, right);
+                    pause(1);
+                    forwardT(brick, left_speed, right_speed);
+                    pause(.2);
+                    forwardT(brick, left_speed, right_speed);
+
+                elseif strcmp(color, "Blue")
+                    if ~has_granny 
+                        has_granny = true;         
+                    end
+
+                    if target_location == pickUpLocation
+                        % stop beep two times
+                        stopT(brick, left, right);
+                        brick.playTone(20, 800, 500);
+                        pause(1);
+                        brick.playTone(20, 800, 500);
+                        disp('transfer control');
+                        forwardT(brick, left_speed, right_speed);
+                        pause(.6);
+                        target_location = dropOffLocation;
+                    end
+                
+                elseif strcmp(color, "Green")
+                    % if target_location == dropOffLocation
+                        disp('reading greed')
+                        % stop and beep three times
+                        stopT(brick, left, right)
+                        brick.playTone(20, 800, 500);
+                        pause(1);
+                        brick.playTone(20, 800, 500);
+                        pause(1);
+                        brick.playTone(20, 800, 500);
+                        pause(1);
+                        disp('whatever yellow does');
+                        forwardT(brick, left_speed, right_speed);
+                        pause(.6);
+                    % end
+
+                end
+
+
+                % could have isolated block in the middle with no external
+                % walls connected
+
+
+            elseif touched == 1
+                touch_logic(brick, right, 40, left_speed, right_speed);
+            end
+
+
+        case 's'
+            brick.StopMotor('AB');
+            stopT(brick, left, right);
+
+        case 'g'
+            grandma_pik(brick);
+
+        case 'd'
+            grandma_drop(brick);
+
+        case 'uparrow'
+            forwardT(brick);
+
+        case 'downarrow'
+            backwardsT(brick);
+
+        case 'rightarrow'
+            rightT(brick, left, 40);
+            pause(1);
+            brick.StopMotor('AB')
+            pause(1)
+
+        case 'leftarrow'
+            leftT(brick, right, 40);
+            pause(.947);
+            brick.StopMotor('AB');
+            pause(1);
+
+        case 'q'
+            brick.StopAllMotors();
+            break;
+    end
+end
+
+brick.SetColorMode(3,4)
+color_rgb = brick.ColorRGB(3);
+
+R = color_rgb(1);
+G = color_rgb(2);
+B = color_rgb(3);
+
+hasGranny = false;
+%We keep as boolean
+
+
+function color = determineColor(R, G, B)   
+    % brightness = (R + G + B) / 3;
+    % base_threshold = 100;
+    % disp(brick.ColorRGB(3))
+    % 
+    % 
+    % if brightness < 150
+    %     threshold = 95;
+    % else
+    %     threshold = base_threshold;
+    % end
+    threshold = 90;
+
+    if R >= threshold && G < threshold && B < threshold
+        color = "Red";  
+    elseif G >= threshold && R < threshold && B < threshold
+        color = "Green";
+    elseif B >= threshold && R < threshold && G < threshold
+        color = "Blue";
+    elseif R >= threshold && G >= threshold && B < threshold
+        color = "Yellow";
+    else
+        color = "unknown";
+    end
+end
+
+function alignUsingUltrasonic(brick, left, right, leftSpeed, rightSpeed)
+   
+    distance = brick.UltrasonicDist(4);
+    
+   
+    minThreshold = 15; 
+    maxThreshold = 27; 
+
+    
+    if distance <= minThreshold
+        % Turn slightly left 
+        disp('Adjusting right');
+        brick.MoveMotor(left, leftSpeed - 10); 
+        brick.MoveMotor(right, rightSpeed + 10); 
+        pause(0.3); 
+        brick.StopMotor('AB');
+        
+    elseif distance >= maxThreshold
+        % Turn slightly right 
+        disp('Adjusting left');
+        brick.MoveMotor(left, leftSpeed + 10); 
+        brick.MoveMotor(right, rightSpeed - 10); 
+        pause(0.3); 
+        brick.StopMotor('AB');
+    else
+        disp('Center');
+        brick.MoveMotor(left, leftSpeed);
+        brick.MoveMotor(right, rightSpeed);
+    end
+end
