@@ -1,12 +1,16 @@
 
 % Global variables for locations and states
 global key;
+global glstartLocation;
+global pickUpLocation;
+global dropOffLocation;
+global stopSignLocation;
 %global startLocation, pickUpLocation, dropOffLocation, stopSignLocation, hasGranny, taskComplete
 
 % Define location colors
-startLocation = 'Blue';
-pickUpLocation = 'Yellow';
-dropOffLocation = 'Green';
+glstartLocation = 'Green';
+pickUpLocation = 'Blue';
+dropOffLocation = 'Yellow';
 stopSignLocation = 'Red';
 
 % Initialize state variables
@@ -42,9 +46,10 @@ brick.SetColorMode(3, 4);
         pause(0.15); % Prevents excessive looping
 
         if mod(cycle, 2) == 0
-            right_speed = 47;
+            right_speed = 46;
+
         else
-            right_speed = 44;
+            right_speed = 43;
         end
 
         % Read color sensor values and assign to RGB variables
@@ -61,15 +66,12 @@ brick.SetColorMode(3, 4);
         % strcmp compares two strings and returns true if they are the same
         if strcmp(color, startLocation)
             disp("At Start Location");
-            stopT(brick, left, right);
-            pause(3);
-            forwardT(brick, left_speed, right_speed);
 
         elseif strcmp(color, pickUpLocation)
             disp("At Pick-Up Location");
-            pause(3);
             if ~hasGranny
-                disp("Granny picked up.");
+                pause(.2);
+                stopT(brick, left, right);
                 while 1
                     pause(.25)
                     switch key
@@ -82,9 +84,9 @@ brick.SetColorMode(3, 4);
                         case 'a'
                             brick.MoveMotor(right, 30);
                         case 'uparrow'
-                            brick.MoveMotor('C', 20);
+                            brick.MoveMotor('C', 5);
                         case 'downarrow'
-                            brick.MoveMotor('C', -20);
+                            brick.MoveMotor('C', -5);
                         case 'q'
                             break;
                         case 0
@@ -100,10 +102,10 @@ brick.SetColorMode(3, 4);
 
         elseif strcmp(color, dropOffLocation)
             disp("At Drop-Off Location");
+            pause(.5);
             stopT(brick, left, right);
-            pause(3);
             if hasGranny 
-            
+                brick.MoveMotor('C', -20);
                 taskComplete = true;
             else
                 disp("Granny not yet picked up.");
@@ -134,7 +136,7 @@ brick.SetColorMode(3, 4);
                 disp('righting runt');
                 forwardT(brick, left_speed, right_speed);
                 pause(.5);
-                right_turn_logic(brick, left, left_speed, right_speed, right_speed);
+                right_turn_logic(brick, left, left_speed, right_speed, right_speed, R, G, B, stopSignLocation);
             elseif distance < correctional_distance || distance == 255
                 right_speed = 50;
                 disp("increasing speed");
@@ -164,7 +166,14 @@ brick.SetColorMode(3, 4);
 function color = determineColor(R, G, B)   
     % Threshold value for color detection, was originally 100, set to 95 because offical green wasn't being detected 
     % Possibly modify this value to improve color detection
-    threshold = 95;      
+
+    brightness = (R + G + B) / 3;
+    if brightness < 100
+        threshold = 50;
+    else
+        threshold = 100;
+    end
+
 
     if R >= threshold && G < threshold && B < threshold
         color = 'Red';  
@@ -234,14 +243,26 @@ function touch_logic(brick, right, rspeed, fSpeed, flSpeed)
 
 end
 
-function right_turn_logic(brick, left, lspeed, fSpeed, flSpeed)
+function right_turn_logic(brick, left, lspeed, fSpeed, flSpeed, R, G, B, stopSignLocation)
         brick.StopMotor('AB');
         pause(.4);
         rightT(brick, left, lspeed);
-        pause(1);
+        pause(1.1);
         brick.StopMotor('AB');
         forwardT(brick, fSpeed, flSpeed);
-        pause(1);
+        time = 0;
+        while time <= 4
+            pause(.15)
+            color = determineColor(R, G, B);
+
+            if strcmp(color, stopSignLocation)
+                stopT(brick, left, right);
+                pause(1);
+                forwardT(brick, fSpeed, flSpeed);
+            end
+
+            time = time + 1;
+        end
 end
 
 function grandma_pik(brick)
