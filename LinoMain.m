@@ -26,8 +26,8 @@ adjust_time = .1;
 correctional_distance = 10;
 safety_distance = 30;
 
-right_speed = 44;
-left_speed = 45;
+right_speed = 34;
+left_speed = 35;
 
 right = 'B';
 left = 'A';
@@ -43,13 +43,13 @@ brick.SetColorMode(3, 4);
 
 % Main function to control robot behavior
     while ~taskComplete
-        pause(0.15); % Prevents excessive looping
+        pause(0.1); % Prevents excessive looping
 
         if mod(cycle, 2) == 0
-            right_speed = 46;
+            right_speed = 36;
 
         else
-            right_speed = 43;
+            right_speed = 33;
         end
 
         % Read color sensor values and assign to RGB variables
@@ -137,6 +137,7 @@ brick.SetColorMode(3, 4);
                 forwardT(brick, left_speed, right_speed);
                 pause(.5);
                 right_turn_logic(brick, left, right, left_speed, right_speed, right_speed, R, G, B, stopSignLocation);
+                continue;
             % elseif distance < correctional_distance || distance == 255
             %     right_speed = 50;
             %     disp("increasing speed");
@@ -150,10 +151,11 @@ brick.SetColorMode(3, 4);
         else
             disp("Touched");
             touch_logic(brick, right, 40, left_speed, right_speed);
+            continue;
         end
 
 
-        %alignUsingUltrasonic(brick, left, right, left_speed, right_speed);
+        alignUsingUltrasonic(brick, left, right, left_speed, right_speed);
         
         cycle = cycle + 1;
     end
@@ -247,7 +249,7 @@ function right_turn_logic(brick, left, right, lspeed, fSpeed, flSpeed, R, G, B, 
         brick.StopMotor('AB');
         pause(.4);
         rightT(brick, left, lspeed);
-        pause(1.1);
+        pause(1.6);
         brick.StopMotor('AB');
         forwardT(brick, fSpeed, flSpeed);
         time = 0;
@@ -293,23 +295,24 @@ function alignUsingUltrasonic(brick, left, right, leftSpeed, rightSpeed)
     distance = brick.UltrasonicDist(4);
     
    
-    minThreshold = 20; 
-    maxThreshold = 35; 
+    minThreshold = 17; 
+    maxThreshold = 20; 
+    crazyThreshold = 40;
 
     
     if distance <= minThreshold
         % Turn slightly left 
         disp('Adjusting right');
-        brick.MoveMotor(left, leftSpeed - 1); 
-        brick.MoveMotor(right, rightSpeed + 1); 
-        pause(0.3); 
+        brick.MoveMotor(left, leftSpeed - 3); 
+        brick.MoveMotor(right, rightSpeed + 3); 
+        pause(.1);
         
-    elseif distance >= maxThreshold
+    elseif distance >= maxThreshold && distance < crazyThreshold
         % Turn slightly right 
         disp('Adjusting left');
-        brick.MoveMotor(left, leftSpeed + 1); 
-        brick.MoveMotor(right, rightSpeed - 1); 
-        pause(0.3); 
+        brick.MoveMotor(left, leftSpeed + 3); 
+        brick.MoveMotor(right, rightSpeed - 3);
+        pause(.1);
     else
         disp('Center');
         brick.MoveMotor(left, leftSpeed);
