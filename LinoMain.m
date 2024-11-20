@@ -1,14 +1,14 @@
 
 % Global variables for locations and states
 global key;
-global glstartLocation;
+global startLocation;
 global pickUpLocation;
 global dropOffLocation;
 global stopSignLocation;
 %global startLocation, pickUpLocation, dropOffLocation, stopSignLocation, hasGranny, taskComplete
 
 % Define location colors
-glstartLocation = 'Green';
+startLocation = 'Green';
 pickUpLocation = 'Blue';
 dropOffLocation = 'Yellow';
 stopSignLocation = 'Red';
@@ -136,13 +136,13 @@ brick.SetColorMode(3, 4);
                 disp('righting runt');
                 forwardT(brick, left_speed, right_speed);
                 pause(.5);
-                right_turn_logic(brick, left, left_speed, right_speed, right_speed, R, G, B, stopSignLocation);
-            elseif distance < correctional_distance || distance == 255
-                right_speed = 50;
-                disp("increasing speed");
-            elseif distance > correctional_distance && distance < safety_distance
-                right_speed = 40;
-                disp("correcting speed");
+                right_turn_logic(brick, left, right, left_speed, right_speed, right_speed, R, G, B, stopSignLocation);
+            % elseif distance < correctional_distance || distance == 255
+            %     right_speed = 50;
+            %     disp("increasing speed");
+            % elseif distance > correctional_distance && distance < safety_distance
+            %     right_speed = 40;
+            %     disp("correcting speed");
             end
                
             % could have isolated block in the middle with no external
@@ -169,9 +169,9 @@ function color = determineColor(R, G, B)
 
     brightness = (R + G + B) / 3;
     if brightness < 100
-        threshold = 50;
+        threshold = 90;
     else
-        threshold = 100;
+        threshold = 91;
     end
 
 
@@ -243,7 +243,7 @@ function touch_logic(brick, right, rspeed, fSpeed, flSpeed)
 
 end
 
-function right_turn_logic(brick, left, lspeed, fSpeed, flSpeed, R, G, B, stopSignLocation)
+function right_turn_logic(brick, left, right, lspeed, fSpeed, flSpeed, R, G, B, stopSignLocation)
         brick.StopMotor('AB');
         pause(.4);
         rightT(brick, left, lspeed);
