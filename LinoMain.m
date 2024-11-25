@@ -5,7 +5,6 @@ global startLocation;
 global pickUpLocation;
 global dropOffLocation;
 global stopSignLocation;
-%global startLocation, pickUpLocation, dropOffLocation, stopSignLocation, hasGranny, taskComplete
 
 % Define location colors
 startLocation = 'Green';
@@ -84,9 +83,9 @@ brick.SetColorMode(3, 4);
                         case 'a'
                             brick.MoveMotor(right, 30);
                         case 'uparrow'
-                            brick.MoveMotor('C', 5);
+                            brick.MoveMotor('C', 10);
                         case 'downarrow'
-                            brick.MoveMotor('C', -5);
+                            brick.MoveMotor('C', -10);
                         case 'q'
                             break;
                         case 0
@@ -130,6 +129,10 @@ brick.SetColorMode(3, 4);
 
             distance = brick.UltrasonicDist(4);
 
+            alignUsingUltrasonic(brick, left, right, left_speed, right_speed);
+
+            disp(distance);
+
             % constalntly scan the distance and and if the distance is
             % certain mark turn the robot that way
             if distance > right_distance && distance ~= 255
@@ -155,7 +158,6 @@ brick.SetColorMode(3, 4);
         end
 
 
-        alignUsingUltrasonic(brick, left, right, left_speed, right_speed);
         
         cycle = cycle + 1;
     end
@@ -253,7 +255,7 @@ function right_turn_logic(brick, left, right, lspeed, fSpeed, flSpeed, R, G, B, 
         brick.StopMotor('AB');
         forwardT(brick, fSpeed, flSpeed);
         time = 0;
-        while time <= 4
+        while time <= 6
             pause(.15)
             color = determineColor(R, G, B);
 
@@ -295,9 +297,9 @@ function alignUsingUltrasonic(brick, left, right, leftSpeed, rightSpeed)
     distance = brick.UltrasonicDist(4);
     
    
-    minThreshold = 17; 
-    maxThreshold = 20; 
-    crazyThreshold = 40;
+    minThreshold = 15;
+    maxThreshold = 16;
+    crazyThreshold = 50;
 
     
     if distance <= minThreshold
@@ -305,14 +307,15 @@ function alignUsingUltrasonic(brick, left, right, leftSpeed, rightSpeed)
         disp('Adjusting right');
         brick.MoveMotor(left, leftSpeed - 3); 
         brick.MoveMotor(right, rightSpeed + 3); 
-        pause(.1);
+        % pause(.1);
         
+    
     elseif distance >= maxThreshold && distance < crazyThreshold
         % Turn slightly right 
         disp('Adjusting left');
-        brick.MoveMotor(left, leftSpeed + 3); 
-        brick.MoveMotor(right, rightSpeed - 3);
-        pause(.1);
+        brick.MoveMotor(left, leftSpeed + 2); 
+        brick.MoveMotor(right, rightSpeed - 2);
+        % pause(.1);
     else
         disp('Center');
         brick.MoveMotor(left, leftSpeed);
