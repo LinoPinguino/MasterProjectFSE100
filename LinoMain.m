@@ -138,7 +138,7 @@ brick.SetColorMode(3, 4);
             if distance > right_distance && distance ~= 255
                 disp('righting runt');
                 forwardT(brick, left_speed, right_speed);
-                pause(.5);
+                pause(.7);
                 right_turn_logic(brick, left, right, left_speed, right_speed, right_speed, R, G, B, stopSignLocation);
                 continue;
             % elseif distance < correctional_distance || distance == 255
@@ -251,18 +251,23 @@ function right_turn_logic(brick, left, right, lspeed, fSpeed, flSpeed, R, G, B, 
         brick.StopMotor('AB');
         pause(.4);
         rightT(brick, left, lspeed);
-        pause(1.6);
+        pause(1.5);
         brick.StopMotor('AB');
         forwardT(brick, fSpeed, flSpeed);
         time = 0;
-        while time <= 6
+        while time <= 8
             pause(.15)
+            distance = brick.UltrasonicDist(4);
             color = determineColor(R, G, B);
 
             if strcmp(color, stopSignLocation)
                 stopT(brick, left, right);
                 pause(1);
                 forwardT(brick, fSpeed, flSpeed);
+            end
+
+            if time > 6 && distance > 50
+                break
             end
 
             time = time + 1;
@@ -297,9 +302,12 @@ function alignUsingUltrasonic(brick, left, right, leftSpeed, rightSpeed)
     distance = brick.UltrasonicDist(4);
     
    
-    minThreshold = 15;
-    maxThreshold = 16;
-    crazyThreshold = 50;
+    minThreshold = 18;
+    maxThreshold = 19;
+    crazyThreshold = 29;
+
+    intenseThresholdmin = 30;
+    intesnseThresholdmax = 45;
 
     
     if distance <= minThreshold
@@ -316,6 +324,12 @@ function alignUsingUltrasonic(brick, left, right, leftSpeed, rightSpeed)
         brick.MoveMotor(left, leftSpeed + 2); 
         brick.MoveMotor(right, rightSpeed - 2);
         % pause(.1);
+
+    elseif distance >= intenseThresholdmin && distance <= intesnseThresholdmax
+        disp('Intense adjustment');
+        brick.MoveMotor(left, leftSpeed + 6); 
+        brick.MoveMotor(right, rightSpeed - 6);
+  
     else
         disp('Center');
         brick.MoveMotor(left, leftSpeed);
